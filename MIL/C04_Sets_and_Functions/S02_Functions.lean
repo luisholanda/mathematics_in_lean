@@ -34,66 +34,139 @@ example : s ⊆ f ⁻¹' (f '' s) := by
   use x, xs
 
 example : f '' s ⊆ v ↔ s ⊆ f ⁻¹' v := by
-  sorry
+  constructor
+  · intro h x h₁
+    exact h ⟨x, ⟨h₁, by rfl⟩⟩
+  · rintro h y ⟨x, h₁, rfl⟩
+    exact h h₁
 
 example (h : Injective f) : f ⁻¹' (f '' s) ⊆ s := by
-  sorry
+  rintro x ⟨x', h₁, h₂⟩
+  rwa [h h₂] at h₁
 
 example : f '' (f ⁻¹' u) ⊆ u := by
-  sorry
+  rintro y ⟨x, h, rfl⟩
+  exact h
 
 example (h : Surjective f) : u ⊆ f '' (f ⁻¹' u) := by
-  sorry
+  rintro y h₁
+  obtain ⟨x, rfl⟩ := h y
+  use x
+  exact ⟨h₁, by rfl⟩
 
 example (h : s ⊆ t) : f '' s ⊆ f '' t := by
-  sorry
+  rintro y ⟨x, h₁, rfl⟩
+  use x
+  exact ⟨h h₁, by rfl⟩
 
-example (h : u ⊆ v) : f ⁻¹' u ⊆ f ⁻¹' v := by
-  sorry
+example (h : u ⊆ v) : f ⁻¹' u ⊆ f ⁻¹' v := fun _ h₁ ↦ h h₁
 
 example : f ⁻¹' (u ∪ v) = f ⁻¹' u ∪ f ⁻¹' v := by
-  sorry
+  ext x
+  constructor
+  repeat
+    intro h
+    assumption
 
 example : f '' (s ∩ t) ⊆ f '' s ∩ f '' t := by
-  sorry
+  rintro y ⟨x, ⟨h₁, h₂⟩, rfl⟩
+  constructor
+  repeat use x
 
 example (h : Injective f) : f '' s ∩ f '' t ⊆ f '' (s ∩ t) := by
-  sorry
+  rintro y ⟨⟨x₁, h₁, rfl⟩, ⟨x₂, h₂, h₃⟩⟩
+  rw [h h₃] at h₂
+  use x₁
+  exact ⟨⟨h₁, h₂⟩, by rfl⟩
 
 example : f '' s \ f '' t ⊆ f '' (s \ t) := by
-  sorry
+  intro y ⟨⟨x, h, h₁⟩, h₂⟩
+  use x
+  have h₃ : x ∉ t := by
+    intro h₃
+    exact h₂ ⟨x, h₃, h₁⟩
+  exact ⟨⟨h, h₃⟩, h₁⟩
 
-example : f ⁻¹' u \ f ⁻¹' v ⊆ f ⁻¹' (u \ v) := by
-  sorry
+example : f ⁻¹' u \ f ⁻¹' v ⊆ f ⁻¹' (u \ v) := fun _ ↦ id
 
 example : f '' s ∩ v = f '' (s ∩ f ⁻¹' v) := by
-  sorry
+  ext y
+  constructor
+  · rintro ⟨⟨x, h, rfl⟩, h₁⟩
+    use x
+    exact ⟨⟨h, h₁⟩, by rfl⟩
+  · rintro ⟨x, ⟨h, h₁⟩, rfl⟩
+    exact ⟨(by use x), h₁⟩
 
 example : f '' (s ∩ f ⁻¹' u) ⊆ f '' s ∩ u := by
-  sorry
+  rintro _ ⟨x, ⟨⟨h, h₁⟩, rfl⟩⟩
+  constructor
+  · use x
+  · assumption
 
 example : s ∩ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∩ u) := by
-  sorry
+  rintro x ⟨h, h₁⟩
+  constructor
+  · use x
+  · assumption
 
 example : s ∪ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∪ u) := by
-  sorry
+  rintro x (h | h)
+  · left; use x
+  · right; assumption
 
 variable {I : Type*} (A : I → Set α) (B : I → Set β)
 
 example : (f '' ⋃ i, A i) = ⋃ i, f '' A i := by
-  sorry
+  ext y
+  constructor
+  · rintro ⟨x, ⟨⟨xs, ⟨⟨i, rfl⟩, h⟩⟩, rfl⟩⟩
+    simp
+    use i, x
+  · rintro ⟨ys, ⟨⟨i, rfl⟩, ⟨x, ⟨h, h₁⟩⟩⟩⟩
+    use x
+    constructor
+    · use A i
+      simp [h]
+    · assumption
+
 
 example : (f '' ⋂ i, A i) ⊆ ⋂ i, f '' A i := by
-  sorry
+  rintro _ ⟨x, ⟨h, rfl⟩⟩ ys ⟨i, rfl⟩
+  simp at h ⊢
+  use x
+  exact ⟨h i, by rfl⟩
+
 
 example (i : I) (injf : Injective f) : (⋂ i, f '' A i) ⊆ f '' ⋂ i, A i := by
-  sorry
+  rintro y h
+  simp at h ⊢
+  obtain ⟨x, ⟨h₁, rfl⟩⟩ := h i
+  use x
+  constructor
+  · intro i'
+    obtain ⟨x', ⟨h₂, h₃⟩⟩ := h i'
+    rcases injf h₃
+    assumption
+  · rfl
 
 example : (f ⁻¹' ⋃ i, B i) = ⋃ i, f ⁻¹' B i := by
-  sorry
+  ext x
+  constructor
+  · rintro ⟨ys, ⟨⟨i, rfl⟩, h⟩⟩
+    simp
+    use i
+  · rintro ⟨xs, ⟨⟨i, rfl⟩, h⟩⟩
+    simp at h ⊢
+    use i
 
 example : (f ⁻¹' ⋂ i, B i) = ⋂ i, f ⁻¹' B i := by
-  sorry
+  ext x
+  constructor
+  repeat
+    intro h
+    simp at h ⊢
+    assumption
 
 example : InjOn f s ↔ ∀ x₁ ∈ s, ∀ x₂ ∈ s, f x₁ = f x₂ → x₁ = x₂ :=
   Iff.refl _
@@ -123,7 +196,13 @@ example : range exp = { y | y > 0 } := by
   rw [exp_log ypos]
 
 example : InjOn sqrt { x | x ≥ 0 } := by
-  sorry
+  intro x₁ x₁pos x₂ x₂pos h
+  have h₁ : ∀ x : ℝ, x ≥ 0 → x = √x ^ (2: ℝ) := by
+    intro x xpos
+    rw [sqrt_eq_rpow x, div_eq_inv_mul, mul_one]
+    symm
+    apply rpow_inv_rpow xpos two_ne_zero
+  rw [h₁ x₁ x₁pos, h₁ x₂ x₂pos, h]
 
 example : InjOn (fun x ↦ x ^ 2) { x : ℝ | x ≥ 0 } := by
   sorry
